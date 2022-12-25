@@ -1,3 +1,4 @@
+import 'package:efishery_bank/helpers/check_connectivity.dart';
 import 'package:efishery_bank/helpers/styles.dart';
 import 'package:efishery_bank/view/ui/add_fish_view.dart';
 import 'package:efishery_bank/viewmodel/fish_viewmodel.dart';
@@ -19,7 +20,8 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void initState() {
     super.initState();
-    Provider.of<FishViewModel>(context, listen: false).init();
+
+    Provider.of<FishViewModel>(context, listen: false).init(context);
   }
 
   @override

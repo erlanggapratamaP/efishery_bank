@@ -5,7 +5,6 @@ import 'package:efishery_bank/db/size_db.dart';
 import 'package:efishery_bank/model/area.dart';
 import 'package:efishery_bank/model/fish.dart';
 import 'package:efishery_bank/provider/area_provider.dart';
-import 'package:efishery_bank/provider/size_provider.dart';
 import 'package:efishery_bank/view/widgets/activity_indicator.dart';
 import 'package:flutter/material.dart';
 
@@ -56,19 +55,16 @@ class AddFishViewModel extends ChangeNotifier implements FishAbstract {
   }
 
   Future<List<String>> getKotaByProv(String prov) async {
-    var areaList = await AreaProvider().getAPIListArea();
-    List<Area>? areaKotaList = [];
-    if (areaList != null) {
-      areaKotaList =
-          areaList.where((element) => element.province == prov).toList();
-      for (var data in areaKotaList) {
-        kotaList.add(data.city ?? '');
-      }
-      notifyListeners();
-      return kotaList;
-    } else {
-      return kotaList;
+    var areaList = await _areaProvider.areas();
+    List<AreaLocal>? areaKotaList = [];
+    areaKotaList =
+        areaList.where((element) => element.province == prov).toList();
+    var clearArea = areaKotaList.toSet().toList();
+    for (var data in clearArea) {
+      kotaList.add(data.city ?? '');
     }
+    notifyListeners();
+    return kotaList;
   }
 
   Future<List<String>> getKota() async {

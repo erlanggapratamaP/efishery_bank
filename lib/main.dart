@@ -1,3 +1,4 @@
+import 'package:efishery_bank/helpers/check_connectivity.dart';
 import 'package:efishery_bank/view/ui/add_fish_view.dart';
 import 'package:efishery_bank/view/ui/dashboard_view.dart';
 import 'package:efishery_bank/view/widgets/filter_dialog_view.dart';
@@ -32,18 +33,42 @@ void main() {
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  //check connection
+  bool isLoading = true;
+  Future<void> _checkConnection(context) async {
+    await ConnectionCheck(context).initConnectivity();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    () async {
+      await _checkConnection(context);
+    }();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'eFishery-Bank',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const DashboardView(),
-    );
+    return  MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'eFishery-Bank',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+            ),
+            home:  isLoading ? const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: Colors.blue,)),
+          ) : const DashboardView(),
+          );
   }
 }

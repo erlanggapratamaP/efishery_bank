@@ -197,8 +197,10 @@ class _AddFishViewState extends State<AddFishView> {
                                     fontSize: 15, color: Colors.black),
                                 onChanged: (String? value) async {
                                   setState(() {
-                                    fish.valueProvinsi = value;
                                     fish.getKotaByProv(value!);
+                                    fish.valueProvinsi = value;
+                                    fish.valueKota = null;
+                                    fish.kotaList = [];
                                   });
                                 },
                                 items: fish.provinsiList

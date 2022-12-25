@@ -1,11 +1,11 @@
 import 'package:efishery_bank/db/area_db.dart';
 import 'package:efishery_bank/db/fish_db.dart';
 import 'package:efishery_bank/db/size_db.dart';
+import 'package:efishery_bank/helpers/check_connectivity.dart';
 import 'package:efishery_bank/model/area.dart';
 import 'package:efishery_bank/model/size.dart';
 import 'package:efishery_bank/provider/area_provider.dart';
 import 'package:efishery_bank/provider/size_provider.dart';
-import 'package:efishery_bank/view/widgets/activity_indicator.dart';
 import 'package:flutter/material.dart';
 import '../abstracts/fish_abstract.dart';
 import '../model/fish.dart';
@@ -25,42 +25,65 @@ class FishViewModel extends ChangeNotifier implements FishAbstract {
 
   var isLoading = false;
   //inisialisasi data
-  void init() async {
+  void init(context) async {
     isLoading = true;
     fishes = [];
-    await getListFish();
+    await ConnectionCheck(context).checkConnection();
+    await initGetFish();
     await areaApiToDb();
     await sizeApiToDb();
     isLoading = false;
     notifyListeners();
   }
 
-  Future<List<Fish>> addTwoListFromApiandDB(List<Fish> fishTemp) async {
-    var fishGet = await FishProvider().getAPIListFish();
-    List<Fish> newList = [];
-    if (fishGet != null && fishTemp.isNotEmpty) {
-      fishGet.removeWhere((element) => element.uuid == null);
-      newList = <Fish>{...fishTemp, ...fishGet}.toList();
-    } else if (fishGet != null) {
-      newList = fishGet.toList();
-    }
-    return newList;
-  }
-
+  // GET FUNCTION LIST
   @override
   Future<List<Fish>> getListFish() async {
     isLoading = true;
     var fishesTemp = await _fishProvider.fishes();
     fishesTemp.sort(
-        (a, b) => b.tglParsed.toString().compareTo(a.tglParsed.toString()));
-    fishes = await addTwoListFromApiandDB(fishesTemp);
+        (a, b) => b.timestamp.toString().compareTo(a.timestamp.toString()));
+    fishes = fishesTemp;
+    isLoading = false;
+    notifyListeners();
+    return fishes;
+  }
 
+  Future<List<Fish>> initGetFish() async {
+    isLoading = true;
+    fishes = await addTwoListFromApiandDB();
+    fishes.sort(
+        (a, b) => b.timestamp.toString().compareTo(a.timestamp.toString()));
     isLoading = false;
     notifyListeners();
 
     return fishes;
   }
 
+  Future<List<Fish>> addTwoListFromApiandDB() async {
+    var koneksi = await ConnectionCheck.getConnection();
+    List<Fish> newList = [];
+    if (koneksi == 'online') {
+      var fishGet = await FishProvider().getAPIListFish();
+      if (fishGet != null) {
+        fishGet.removeWhere((element) => element.uuid == null);
+        await addApiToDB(fishGet);
+        newList = await _fishProvider.fishes();
+      }
+    } else {
+      newList = await _fishProvider.fishes();
+    }
+
+    return newList;
+  }
+
+  Future<void> addApiToDB(List<Fish> fish) async {
+    for (var data in fish) {
+      await _fishProvider.insertFish(data);
+    }
+  }
+
+  // FILTER FUNCTION
   Future<List<Fish>> filterPriceFish(context) async {
     isLoading = true;
     fishes = await getListFish();
@@ -74,6 +97,7 @@ class FishViewModel extends ChangeNotifier implements FishAbstract {
     return fishes;
   }
 
+  // SORTING FUNCTION FROM PRICE
   Future<List<Fish>> sortPriceFish(context) async {
     isLoading = true;
     fishes = await getListFish();
@@ -88,6 +112,7 @@ class FishViewModel extends ChangeNotifier implements FishAbstract {
     return fishes;
   }
 
+  // SEARCH FUNCTION
   Future<List<Fish>> searchPriceFish(String search, context) async {
     isLoading = true;
     fishes = await getListFish();
@@ -114,21 +139,35 @@ class FishViewModel extends ChangeNotifier implements FishAbstract {
 
   //Get Area from API and Put in DB
   Future<void> areaApiToDb() async {
-    var areaGet = await AreaProvider().getAPIListArea();
-    if (areaGet != null) {
-      for (var data in areaGet) {
-        AreaLocal area = AreaLocal(province: data.province, city: data.city);
-        _areaProvider.insertArea(area);
+    var koneksi = await ConnectionCheck.getConnection();
+    if (koneksi == 'online') {
+      var areaGet = await AreaProvider().getAPIListArea();
+      areaGet?.removeWhere((element) => element.province == null && element.city == null);
+      var areaList = await _areaProvider.areas();
+      if (areaGet != null) {
+        if (areaList.isEmpty) {
+          for (var data in areaGet) {
+            AreaLocal area =
+                AreaLocal(province: data.province, city: data.city);
+            await _areaProvider.insertArea(area);
+          }
+        } 
       }
     }
   }
 
   Future<void> sizeApiToDb() async {
-    var sizeGet = await SizeProvider().getAPIListSize();
-    if (sizeGet != null) {
-      for (var data in sizeGet) {
-        SizeFishLocal area = SizeFishLocal(size: data.size);
-        _sizeProvider.insertSize(area);
+    var koneksi = await ConnectionCheck.getConnection();
+    if (koneksi == 'online') {
+      var sizeGet = await SizeProvider().getAPIListSize();
+      var sizeListA = await _sizeProvider.sizes();
+      if (sizeGet != null) {
+        if (sizeListA.isEmpty) {
+          for (var data in sizeGet) {
+            SizeFishLocal area = SizeFishLocal(size: data.size);
+            await _sizeProvider.insertSize(area);
+          }
+        } 
       }
     }
   }
