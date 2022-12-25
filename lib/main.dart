@@ -5,10 +5,15 @@ import 'package:efishery_bank/view/widgets/filter_dialog_view.dart';
 import 'package:efishery_bank/viewmodel/add_fish_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'viewmodel/fish_viewmodel.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -60,15 +65,20 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'eFishery-Bank',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
-            home:  isLoading ? const Scaffold(
-            body: Center(child: CircularProgressIndicator(color: Colors.blue,)),
-          ) : const DashboardView(),
-          );
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'eFishery-Bank',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: isLoading
+          ? const Scaffold(
+              body: Center(
+                  child: CircularProgressIndicator(
+                color: Colors.blue,
+              )),
+            )
+          : const DashboardView(),
+    );
   }
 }

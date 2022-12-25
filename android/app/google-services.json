@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "652099771687",
+    "project_id": "efishery-bank-testing",
+    "storage_bucket": "efishery-bank-testing.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652099771687:android:e133441f718ca79ea71d02",
+        "android_client_info": {
+          "package_name": "com.example.efishery_bank"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "652099771687-dhvkr16rkh3d5l9as98vhh6645mua29s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDi0bIjxJXkV-5Mwgfm8K9nIcqp_G64KuE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "652099771687-dhvkr16rkh3d5l9as98vhh6645mua29s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "652099771687-rqsvqrkjidn6i7o0887r8nhbahp88lgs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.efisheryBank"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
